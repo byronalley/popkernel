@@ -15,4 +15,20 @@ defmodule PopcornTest do
     assert {:error, :foo} = error(:foo)
     assert {:error, "message"} = error("message")
   end
+
+  describe "maybe/2" do
+    test "with an ok tuple runs the function on the extracted value" do
+      f = fn x -> 10 * x end
+
+      assert 90 == maybe({:ok, 9}, f)
+
+      assert "foo" == maybe({:ok, :foo}, &to_string/1)
+    end
+
+    test "with an error tuple runs the function on the extracted value" do
+      assert {:error, "reason"} == maybe({:error, "reason"}, &Kernel.+/2)
+
+      assert {:error, :reason} == maybe({:error, :reason}, &to_string/1)
+    end
+  end
 end
