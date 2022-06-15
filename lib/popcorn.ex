@@ -1,18 +1,15 @@
 defmodule Popcorn do
   @moduledoc """
-  Documentation for `Popcorn`.
+  Documentation for `Popcorn`: functions that should be in Kernel but aren't.
   """
 
   @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> Popcorn.hello()
-      :world
-
+  Wrap the value in an :ok tuple
   """
-  def hello do
-    :world
-  end
+  def ok(value), do: {:ok, value}
+
+  @doc """
+  Wrap the message in an :error tuple
+  """
+  def error(msg), do: {:error, msg}
 end
