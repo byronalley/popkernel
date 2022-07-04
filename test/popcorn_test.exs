@@ -1,6 +1,7 @@
 defmodule PopcornTest do
   use ExUnit.Case
-  # doctest Popcorn
+
+  doctest Popcorn, import: true
 
   import Popcorn
 
@@ -29,6 +30,36 @@ defmodule PopcornTest do
       assert {:error, "reason"} == maybe({:error, "reason"}, &Kernel.+/2)
 
       assert {:error, :reason} == maybe({:error, :reason}, &to_string/1)
+    end
+  end
+
+  describe "tuple_wrap/1" do
+    test "returns ok tuple if function succeeds" do
+      assert {:ok, 5} == tuple_wrap(10 / 2)
+
+      assert {:ok, "FOO"} == tuple_wrap(String.upcase("foo"))
+    end
+
+    test "returns error tuple with string message if function raises error with message" do
+      assert {:error, "bad argument in arithmetic expression"} = tuple_wrap(10 / 0)
+    end
+
+    test "if function raises an error without a message, returns error tuple with module name as string" do
+      defmodule ErrorException do
+        defexception [:message]
+      end
+
+      f = fn -> raise FunctionClauseError end
+      assert {:error, "FunctionClauseError"} = tuple_wrap(f.())
+    end
+
+    test "when message is nil, returns error tuple with module name as string" do
+      defmodule ErrorException do
+        defexception [:message]
+      end
+
+      f = fn -> raise FunctionClauseError end
+      assert {:error, "FunctionClauseError"} = tuple_wrap(f.())
     end
   end
 end
