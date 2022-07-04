@@ -3,6 +3,10 @@ defmodule Popcorn do
   Documentation for `Popcorn`: functions that should be in Kernel but aren't.
   """
 
+  @type ok_tuple :: {:ok, any()}
+  @type error_tuple :: {:error, String.t() | atom}
+  @type status_tuple :: ok_tuple() | error_tuple()
+
   @doc """
   Wrap the value in an :ok tuple. The main purpose of this function is to use at the end of a pipe:
 
@@ -11,6 +15,7 @@ defmodule Popcorn do
     iex> |> ok()
     {:ok, "bar"}
   """
+  @spec ok(any()) :: ok_tuple()
   def ok(value), do: {:ok, value}
 
   @doc """
@@ -20,6 +25,7 @@ defmodule Popcorn do
     iex> |> error()
     {:error, "fail"}
   """
+  @spec error(any()) :: error_tuple()
   def error(msg), do: {:error, msg}
 
   @doc """
@@ -40,6 +46,7 @@ defmodule Popcorn do
     iex> |> Popcorn.maybe(&to_string/1)
     {:error, :invalid}
   """
+  @spec maybe(status_tuple(), (any() -> status_tuple())) :: status_tuple()
   def maybe({:ok, value}, f), do: f.(value)
   def maybe({:error, _} = error_tuple, _), do: error_tuple
 
