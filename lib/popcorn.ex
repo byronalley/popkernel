@@ -4,12 +4,21 @@ defmodule Popcorn do
   """
 
   @doc """
-  Wrap the value in an :ok tuple
+  Wrap the value in an :ok tuple. The main purpose of this function is to use at the end of a pipe:
+
+    iex> %{foo: "bar"}
+    iex> |> Map.get(:foo)
+    iex> |> ok()
+    {:ok, "bar"}
   """
   def ok(value), do: {:ok, value}
 
   @doc """
-  Wrap the message in an :error tuple
+  Wrap the message in an :error tuple. The main purpose of this function is to use at the end of a pipe:
+    iex> %{error: "fail"}
+    iex> |> Map.get(:error)
+    iex> |> error()
+    {:error, "fail"}
   """
   def error(msg), do: {:error, msg}
 
@@ -17,6 +26,19 @@ defmodule Popcorn do
   Maybe execute a function: if the param is an
   `{:ok, value}` tuple, then run the function on `value`.
   If it's an `{:error, msg}` tuple, return that.
+
+  This is mainly an alternative to using `with` blocks, so that
+  you can pipe a function that returns a tuple, directly
+  into another function that expects a simple value -- but only
+  if it's a success tuple:
+
+    iex> {:ok, 10}
+    iex> |> Popcorn.maybe(&to_string/1)
+    "10"
+
+    iex> {:error, :invalid}
+    iex> |> Popcorn.maybe(&to_string/1)
+    {:error, :invalid}
   """
   def maybe({:ok, value}, f), do: f.(value)
   def maybe({:error, _} = error_tuple, _), do: error_tuple
