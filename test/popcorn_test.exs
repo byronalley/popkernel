@@ -58,4 +58,20 @@ defmodule PopcornTest do
       assert {:error, "FunctionClauseError"} = tuple_wrap(f.())
     end
   end
+
+  describe "maybe/2" do
+    test "with a non-nil value, runs the function on the" do
+      f = fn x -> 10 * x end
+
+      assert 90 == maybe(9, f)
+
+      assert "foo" == maybe(:foo, &to_string/1)
+    end
+
+    test "with nil, just returns nil and doesn't apply the function" do
+      refute maybe(nil, &Kernel.+/2)
+
+      refute maybe(nil, &to_string/1)
+    end
+  end
 end

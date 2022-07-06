@@ -6,6 +6,7 @@ defmodule Popcorn do
   @type ok_tuple :: {:ok, any()}
   @type error_tuple :: {:error, String.t() | atom}
   @type status_tuple :: ok_tuple() | error_tuple()
+  @type maybe_any :: any() | nil
 
   @doc """
   Wrap the value in an :ok tuple. The main purpose of this function is to use at the end of a pipe:
@@ -29,9 +30,10 @@ defmodule Popcorn do
   def error(msg), do: {:error, msg}
 
   @doc """
-  Maybe execute a function: if the param is an
-  `{:ok, value}` tuple, then run the function on `value`.
-  If it's an `{:error, msg}` tuple, return that.
+  Given a status tuple, maybe execute a function:
+  - If the param is an `{:ok, value}` tuple, then run the function
+  on `value`.
+  - If it's an `{:error, msg}` tuple, return that.
 
   This is mainly an alternative to using `with` blocks, so that
   you can pipe a function that returns a tuple, directly
@@ -49,6 +51,28 @@ defmodule Popcorn do
   @spec bind(status_tuple(), (any() -> status_tuple())) :: status_tuple()
   def bind({:ok, value}, f), do: f.(value)
   def bind({:error, _} = error_tuple, _), do: error_tuple
+
+  @doc """
+  Maybe execute a function if the given param is not nil:
+  - If the param is not `nil`, then run the function on `value`.
+  - If it's an `{:error, msg}` tuple, return that.
+
+  This is mainly an alternative to using `with` blocks, so that
+  you can pipe a function that returns a tuple, directly
+  into another function that expects a simple value -- but only
+  if it's a success tuple:
+
+    iex> 10
+    iex> |> Popcorn.maybe(&to_string/1)
+    "10"
+
+    iex> nil
+    iex> |> Popcorn.maybe(&to_string/1)
+    nil
+  """
+  @spec maybe(maybe_any(), (any -> any)) :: maybe_any()
+  def maybe(nil, f), do: nil
+  def maybe(value, f), do: f.(value)
 
   @doc """
   Macro to wrap a function call so that it returns a status tuple instead of raising an exception.
