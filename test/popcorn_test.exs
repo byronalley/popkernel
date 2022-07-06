@@ -17,23 +17,27 @@ defmodule PopcornTest do
     assert {:error, "message"} = error("message")
   end
 
-  describe "maybe/2" do
+  describe "bind/2" do
     test "with an ok tuple runs the function on the extracted value" do
       f = fn x -> 10 * x end
 
-      assert 90 == maybe({:ok, 9}, f)
+      assert 90 == bind({:ok, 9}, f)
 
-      assert "foo" == maybe({:ok, :foo}, &to_string/1)
+      assert "foo" == bind({:ok, :foo}, &to_string/1)
     end
 
     test "with an error tuple runs the function on the extracted value" do
-      assert {:error, "reason"} == maybe({:error, "reason"}, &Kernel.+/2)
+      assert {:error, "reason"} == bind({:error, "reason"}, &Kernel.+/2)
 
-      assert {:error, :reason} == maybe({:error, :reason}, &to_string/1)
+      assert {:error, :reason} == bind({:error, :reason}, &to_string/1)
     end
   end
 
   describe "tuple_wrap/1" do
+    defmodule ErrorException do
+      defexception [:message]
+    end
+
     test "returns ok tuple if function succeeds" do
       assert {:ok, 5} == tuple_wrap(10 / 2)
 
@@ -45,19 +49,11 @@ defmodule PopcornTest do
     end
 
     test "if function raises an error without a message, returns error tuple with module name as string" do
-      defmodule ErrorException do
-        defexception [:message]
-      end
-
       f = fn -> raise FunctionClauseError end
       assert {:error, "FunctionClauseError"} = tuple_wrap(f.())
     end
 
     test "when message is nil, returns error tuple with module name as string" do
-      defmodule ErrorException do
-        defexception [:message]
-      end
-
       f = fn -> raise FunctionClauseError end
       assert {:error, "FunctionClauseError"} = tuple_wrap(f.())
     end

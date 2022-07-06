@@ -39,16 +39,16 @@ defmodule Popcorn do
   if it's a success tuple:
 
     iex> {:ok, 10}
-    iex> |> Popcorn.maybe(&to_string/1)
+    iex> |> Popcorn.bind(&to_string/1)
     "10"
 
     iex> {:error, :invalid}
-    iex> |> Popcorn.maybe(&to_string/1)
+    iex> |> Popcorn.bind(&to_string/1)
     {:error, :invalid}
   """
-  @spec maybe(status_tuple(), (any() -> status_tuple())) :: status_tuple()
-  def maybe({:ok, value}, f), do: f.(value)
-  def maybe({:error, _} = error_tuple, _), do: error_tuple
+  @spec bind(status_tuple(), (any() -> status_tuple())) :: status_tuple()
+  def bind({:ok, value}, f), do: f.(value)
+  def bind({:error, _} = error_tuple, _), do: error_tuple
 
   @doc """
   Macro to wrap a function call so that it returns a status tuple instead of raising an exception.
