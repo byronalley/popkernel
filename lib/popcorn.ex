@@ -72,7 +72,7 @@ defmodule Popcorn do
   """
   @spec maybe(maybe_any(), (any -> any)) :: maybe_any()
   def maybe(nil, _f), do: nil
-  def maybe(value, _f), do: f.(value)
+  def maybe(value, f), do: f.(value)
 
   @doc """
   Macro to wrap a function call so that it returns a status tuple instead of raising an exception.
