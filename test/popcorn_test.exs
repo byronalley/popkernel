@@ -74,4 +74,12 @@ defmodule PopcornTest do
       refute maybe(nil, &to_string/1)
     end
   end
+
+  describe "id/1" do
+    test "returns self for different types" do
+      data = [1, :a, [], {:ok, "string"}, %{a: 5}]
+
+      assert data == Enum.map(data, &id/1)
+    end
+  end
 end
