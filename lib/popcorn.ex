@@ -105,4 +105,12 @@ defmodule Popcorn do
        end).()
     end
   end
+
+  @doc """
+  Shorter alias for the identity function (Function.identity/1)
+
+  The downside is that it could conflict with using `id` as a variable name.
+  """
+  @spec id(term) :: term
+  defdelegate id(term), to: Function, as: :identity
 end
