@@ -5,7 +5,7 @@ defmodule Popcorn do
 
   @type ok_tuple :: {:ok, any()}
   @type error_tuple :: {:error, String.t() | atom}
-  @type status_tuple :: ok_tuple() | error_tuple()
+  @type result_tuple :: ok_tuple() | error_tuple()
   @type maybe_any :: any() | nil
 
   @doc """
@@ -30,7 +30,7 @@ defmodule Popcorn do
   def error(msg), do: {:error, msg}
 
   @doc """
-  Given a status tuple, maybe execute a function:
+  Given a result tuple, maybe execute a function:
   - If the param is an `{:ok, value}` tuple, then run the function
   on `value`.
   - If it's an `{:error, msg}` tuple, return that.
@@ -48,7 +48,7 @@ defmodule Popcorn do
     iex> |> Popcorn.bind(&to_string/1)
     {:error, :invalid}
   """
-  @spec bind(status_tuple(), (any() -> status_tuple())) :: status_tuple()
+  @spec bind(result_tuple(), (any() -> result_tuple())) :: result_tuple()
   def bind({:ok, value}, f), do: f.(value)
   def bind({:error, _} = error_tuple, _), do: error_tuple
 
@@ -75,7 +75,7 @@ defmodule Popcorn do
   def maybe(value, f), do: f.(value)
 
   @doc """
-  Macro to wrap a function call so that it returns a status tuple instead of raising an exception.
+  Macro to wrap a function call so that it returns a result tuple instead of raising an exception.
     iex> tuple_wrap(5 + 5)
     {:ok, 10}
 
