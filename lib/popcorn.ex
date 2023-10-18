@@ -3,10 +3,14 @@ defmodule Popcorn do
   Documentation for `Popcorn`: functions that should be in Kernel but aren't.
   """
 
+  @type result_atom :: :ok | :error
+
   @type ok_tuple :: {:ok, any()}
   @type error_tuple :: {:error, String.t() | atom}
   @type result_tuple :: ok_tuple() | error_tuple()
   @type maybe_any :: any() | nil
+
+  @type result :: result_atom() | result_tuple()
 
   @doc """
   Wrap the value in an :ok tuple. The main purpose of this function is to use at the end of a pipe:
@@ -38,19 +42,19 @@ defmodule Popcorn do
   This is mainly an alternative to using `with` blocks, so that
   you can pipe a function that returns a tuple, directly
   into another function that expects a simple value -- but only
-  if it's a success tuple:
+  if it's an ok tuple:
 
-    iex> {:ok, 10}
-    iex> |> Popcorn.bind(&to_string/1)
-    "10"
+    iex> {:ok, [1, 2, 3]}
+    iex> |> Popcorn.bind(& Enum.fetch(&1, 0))
+    {:ok, 1}
 
     iex> {:error, :invalid}
     iex> |> Popcorn.bind(&to_string/1)
     {:error, :invalid}
+
+    Note that you can't give it an `:ok` atom as input because there's no clearly defined behaviour for this: it's not an error but also shouldn't be expected to be used as input directly into another function.
   """
-  @spec bind(result_tuple(), (any() -> result_tuple())) :: result_tuple()
-  def bind({:ok, value}, f), do: f.(value)
-  def bind({:error, _} = error_tuple, _), do: error_tuple
+  def bind(monad, f), do: Monad.bind(monad, f)
 
   @doc """
   Maybe execute a function if the given param is not nil:
@@ -113,4 +117,120 @@ defmodule Popcorn do
   """
   @spec id(term) :: term
   defdelegate id(term), to: Function, as: :identity
+
+  @doc """
+  Bind alias
+
+  iex> {:ok, "666F6F"} ~> Base.decode16()
+  {:ok, "foo"}
+
+  iex> {:ok, "invalid date"} ~> NaiveDateTime.from_iso8601()
+  {:error, :invalid_format}
+
+  iex> {:ok, "invalid"} ~> Base.decode16()
+  :error
+
+  iex> {:error, :oops} ~> Base.decode16()
+  {:error, :oops}
+
+  TODO: Anonymous functions aren't working yet
+  Eg:
+
+  # iex> user = %{id: 1234, name: "Jim Bob"}
+  # iex> get_id = & Map.fetch(&1, :id)
+  # iex> get_id.(user)
+  # {:ok, 1234}
+  # iex> {:ok, user} ~> get_id1.()
+  # {:ok, 1234}
+  # iex> {:error, "reason"} ~> get_id2.()
+  # {:error, "reason"}
+
+  """
+  defmacro left ~> right do
+    case right do
+      # x ~> Module.function()
+      {{:., _, [{:__aliases__, _context, modules}, function]}, _context2, []} ->
+        module = Module.safe_concat(modules)
+
+        quote do
+          bind(
+            unquote(left),
+            &(unquote(module).unquote(function) / 1)
+          )
+        end
+
+      # x ~> Module.function
+      {{:., _context1, [{function, _context2, nil}]}, _context3, []} ->
+        function = {function, [], Elixir}
+
+        quote do
+          bind(unquote(left), unquote(function))
+        end
+
+      # FIXME
+      # x ~> function
+      {function, context, atom} when is_atom(atom) ->
+        f = {function, context, atom}
+
+        quote do
+          bind(unquote(left), unquote(f))
+        end
+
+      # FIXME
+      # x ~> function.() - Pass the function variable directly
+      {{:., [], [function]}, [], []} ->
+        quote do
+          bind(unquote(left), var!(unquote(function)))
+        end
+
+      # Handle multiple args — maybe this should be allowed?
+      {{:., _, [{:__aliases__, _context, modules}, function]}, _context2, args} ->
+        module = Module.safe_concat(modules)
+
+        raise "Compiler Error: ~> operator expected #{module}.#{function} to receive one argument, got additional: #{inspect(args)}"
+
+      other ->
+        raise "Compiler Error: #{inspect(other)}"
+    end
+  end
+
+  @doc """
+    iex> {:ok, "happy"} &&& {:ok, "success"}
+    {:ok, "success"}
+
+    iex> {:ok, "happy"} &&& {:error, "failure"}
+    {:error, "failure"}
+
+    iex> {:error, "failure"} &&& {:ok, "happy"}
+    {:error, "failure"}
+
+  """
+  def result1 &&& result2 do
+    case {result1, result2} do
+      {{:ok, _}, result_tuple} -> result_tuple
+      {{:error, _} = err, _} -> err
+      _ -> raise ArgumentError
+    end
+  end
+
+  @doc """
+    iex> {:ok, "happy"} ||| {:ok, "success"}
+    {:ok, "happy"}
+
+    iex> {:ok, "happy"} ||| {:error, "failure"}
+    {:ok, "happy"}
+
+    iex> {:error, "failure"} ||| {:ok, "happy"}
+    {:ok, "happy"}
+
+    iex> {:error, "failure"} ||| {:error, "oops"}
+    {:error, "oops"}
+  """
+  def result1 ||| result2 do
+    case {result1, result2} do
+      {{:ok, _} = success, _} -> success
+      {{:error, _}, result} -> result
+      _ -> raise ArgumentError
+    end
+  end
 end

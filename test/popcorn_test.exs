@@ -3,6 +3,7 @@ defmodule PopcornTest do
 
   doctest Popcorn, import: true
 
+  require Popcorn
   import Popcorn
 
   describe "ok/1" do
@@ -19,14 +20,12 @@ defmodule PopcornTest do
 
   describe "bind/2" do
     test "with an ok tuple runs the function on the extracted value" do
-      f = fn x -> 10 * x end
+      f = fn x -> {:ok, 10 * x} end
 
-      assert 90 == bind({:ok, 9}, f)
-
-      assert "foo" == bind({:ok, :foo}, &to_string/1)
+      assert {:ok, 90} == bind({:ok, 9}, f)
     end
 
-    test "with an error tuple runs the function on the extracted value" do
+    test "with an error tuple simply returns the error" do
       assert {:error, "reason"} == bind({:error, "reason"}, &Kernel.+/2)
 
       assert {:error, :reason} == bind({:error, :reason}, &to_string/1)
