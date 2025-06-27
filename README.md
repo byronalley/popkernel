@@ -2,6 +2,14 @@
 
 **Functions that should be in Kernel but aren't**
 
-A lot of this little library is an attempt to write helpers that apply monad patterns but in what should feel like an idiomatic Elixir way.
+This library is an experiment:
+- To apply monadic and related patterns but in an idiomatic Elixir way.
+- To take some inspiration from Haskell's approach to Monads
+- To take some inspiration from Rust's helpers
+- More generally, to add things that seem like they should already be in the `Kernel` library and aren't
 
-But more generally it's an experiment looking at things that seem like they should already be in the `Kernel` library and aren't, so the intent is that this library should be use via `import` so that the functions feel like part of the language.
+There are other libraries that have tried to show how you can replace existing Erlang patterns like {:ok, value} with
+structs that are closer to what other languages use, but this takes us too far away from how the rest of Elixir works.
+
+Instead, what if we could add some small helper functions, macros and modules that give a bit of that functionality in
+ways that more naturally fit with other Elixir code?
