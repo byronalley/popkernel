@@ -1,6 +1,6 @@
-defmodule Popcorn do
+defmodule Popkernel do
   @moduledoc """
-  Documentation for `Popcorn`: functions that should be in Kernel but aren't.
+  Documentation for `Popkernel`: functions that should be in Kernel but aren't.
   """
 
   @type result_atom :: :ok | :error
@@ -45,11 +45,11 @@ defmodule Popcorn do
   if it's an ok tuple:
 
     iex> {:ok, [1, 2, 3]}
-    iex> |> Popcorn.bind(& Enum.fetch(&1, 0))
+    iex> |> Popkernel.bind(& Enum.fetch(&1, 0))
     {:ok, 1}
 
     iex> {:error, :invalid}
-    iex> |> Popcorn.bind(&to_string/1)
+    iex> |> Popkernel.bind(&to_string/1)
     {:error, :invalid}
 
     Note that you can't give it an `:ok` atom as input because there's no clearly defined behaviour for this: it's not an error but also shouldn't be expected to be used as input directly into another function.
@@ -67,11 +67,11 @@ defmodule Popcorn do
   if it's a success tuple:
 
     iex> 10
-    iex> |> Popcorn.maybe(&to_string/1)
+    iex> |> Popkernel.maybe(&to_string/1)
     "10"
 
     iex> nil
-    iex> |> Popcorn.maybe(&to_string/1)
+    iex> |> Popkernel.maybe(&to_string/1)
     nil
   """
   @spec maybe(maybe_any(), (any -> any)) :: maybe_any()
