@@ -37,9 +37,9 @@ end
 
 defimpl Monad, for: Tuple do
   @spec bind(
-          Popcorn.result_tuple() | :error,
-          (any() -> Popcorn.result_tuple() | Popcorn.result_atom())
-        ) :: Popcorn.result_tuple()
+          Popkernel.result_tuple() | :error,
+          (any() -> Popkernel.result_tuple() | Popkernel.result_atom())
+        ) :: Popkernel.result_tuple()
   def bind({:ok, value}, f), do: f.(value)
   def bind({:error, _} = error_tuple, _), do: error_tuple
   def bind(:error), do: :error

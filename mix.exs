@@ -1,11 +1,11 @@
-defmodule Popcorn.MixProject do
+defmodule Popkernel.MixProject do
   use Mix.Project
 
-  @repo_url "https://github.com/byronalley/popcorn"
+  @repo_url "https://github.com/byronalley/popkernel"
 
   def project do
     [
-      app: :popcorn,
+      app: :popkernel,
       version: "0.1.0",
       elixir: "~> 1.13",
       start_permanent: Mix.env() == :prod,

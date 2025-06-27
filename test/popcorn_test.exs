@@ -1,10 +1,10 @@
-defmodule PopcornTest do
+defmodule PopkernelTest do
   use ExUnit.Case
 
-  doctest Popcorn, import: true
+  doctest Popkernel, import: true
 
-  require Popcorn
-  import Popcorn
+  require Popkernel
+  import Popkernel
 
   describe "ok/1" do
     test "returns an ok tuple with the value embedded" do
