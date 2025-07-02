@@ -79,7 +79,8 @@ defmodule Popkernel do
   def maybe(value, f), do: f.(value)
 
   @doc """
-  Macro to wrap a function call so that it returns a result tuple instead of raising an exception.
+  Macro to wrap an expression so that it returns a result tuple instead of raising an exception.
+
     iex> tuple_wrap(5 + 5)
     {:ok, 10}
 
@@ -94,11 +95,11 @@ defmodule Popkernel do
   * `{:error, "string message"}` if the exception has a non-nil message
   * `{:error, "ExceptionModule"}` otherwise
   """
-  defmacro tuple_wrap(function_call) do
+  defmacro tuple_wrap(expression) do
     quote do
       (fn ->
          try do
-           {:ok, unquote(function_call)}
+           {:ok, unquote(expression)}
          rescue
            error ->
              case error do
