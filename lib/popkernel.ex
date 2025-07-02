@@ -196,6 +196,12 @@ defmodule Popkernel do
   end
 
   @doc """
+  The &&& operator adapts the idea of && (with values that might
+  be nil) to result tuples.
+
+  It's a shorthand way of returning the last success point or
+  first failure.
+
     iex> {:ok, "happy"} &&& {:ok, "success"}
     {:ok, "success"}
 
@@ -205,6 +211,7 @@ defmodule Popkernel do
     iex> {:error, "failure"} &&& {:ok, "happy"}
     {:error, "failure"}
 
+    TODO: This should be made a macro so we can have short circuit evaluation.
   """
   def result1 &&& result2 do
     case {result1, result2} do
@@ -215,6 +222,11 @@ defmodule Popkernel do
   end
 
   @doc """
+  The ||| operator adapts the idea of || (with values that might
+  be nil) to result tuples.
+
+  It's a shorthand way of returning either the first success point or last failure.
+
     iex> {:ok, "happy"} ||| {:ok, "success"}
     {:ok, "happy"}
 
@@ -226,6 +238,8 @@ defmodule Popkernel do
 
     iex> {:error, "failure"} ||| {:error, "oops"}
     {:error, "oops"}
+
+    TODO: This should be made a macro so we can have short circuit evaluation.
   """
   def result1 ||| result2 do
     case {result1, result2} do
