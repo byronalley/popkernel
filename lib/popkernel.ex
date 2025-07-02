@@ -203,6 +203,22 @@ defmodule Popkernel do
   end
 
   @doc """
+  Unwraps an ok tuple and pulls out the value.
+  iex> {:ok, "value"}
+  iex> |> unwrap()
+  "value"
+
+  If it's not an ok tuple, raise an exception.
+
+  iex> {:error, :reason}
+  iex> |> unwrap()
+  ** (ArgumentError) expected :ok tuple but got {:error, :reason}
+  """
+  @spec unwrap({:ok, term} | {:error, term} | :error) :: term | no_return
+  def unwrap({:ok, any}), do: any
+  def unwrap(other), do: raise(ArgumentError, "expected :ok tuple but got #{inspect(other)}")
+
+  @doc """
   The &&& operator adapts the idea of && (with values that might
   be nil) to result tuples.
 
