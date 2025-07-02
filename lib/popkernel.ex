@@ -12,6 +12,13 @@ defmodule Popkernel do
 
   @type result :: result_atom() | result_tuple()
 
+  defmacro __using__(_) do
+    quote do
+      require Popkernel
+      import Popkernel
+    end
+  end
+
   @doc """
   Wrap the value in an :ok tuple. The main purpose of this function is to use at the end of a pipe:
 

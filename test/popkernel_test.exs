@@ -3,8 +3,7 @@ defmodule PopkernelTest do
 
   doctest Popkernel, import: true
 
-  require Popkernel
-  import Popkernel
+  use Popkernel
 
   describe "ok/1" do
     test "returns an ok tuple with the value embedded" do
