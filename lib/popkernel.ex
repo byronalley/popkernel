@@ -194,7 +194,7 @@ defmodule Popkernel do
   iex> |> unwrap()
   ** (ArgumentError) expected :ok tuple but got: {:error, :reason}
   """
-  @spec unwrap({:ok, term} | {:error, term} | :error) :: term | no_return
+  @spec unwrap(result_tuple() | :error) :: term | no_return
   def unwrap({:ok, any}), do: any
   def unwrap(other), do: raise(ArgumentError, "expected :ok tuple but got: #{inspect(other)}")
 
@@ -221,7 +221,7 @@ defmodule Popkernel do
   iex> |> unwrap_or("default")
   ** (ArgumentError) expected :ok tuple but got: %{this: "does not work"}
   """
-  @spec unwrap_or({:ok, term} | {:error, term} | :error, term) :: term
+  @spec unwrap_or(result_tuple() | :error, term) :: term
   def unwrap_or({:ok, value}, _), do: value
   def unwrap_or({:error, _reason}, default), do: default
   def unwrap_or(:error, default), do: default
