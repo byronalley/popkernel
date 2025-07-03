@@ -41,15 +41,14 @@ defmodule Popkernel do
   def error(msg), do: {:error, msg}
 
   @doc """
-  Given a result tuple, maybe execute a function:
+  Given a Monadic type such as a result tuple, (maybe) execute a function based on the wrapped value, that returns a Monad of the same type. The bind/2 function delegates to the Popkernel.Monad.bind/2 protocol.
+
+  It's implemented for result tuples. For example:
   - If the param is an `{:ok, value}` tuple, then run the function
   on `value`.
   - If it's an `{:error, msg}` tuple, return that.
 
-  This is mainly an alternative to using `with` blocks, so that
-  you can pipe a function that returns a tuple, directly
-  into another function that expects a simple value -- but only
-  if it's an ok tuple:
+  This is mainly an alternative to using `with` blocks, so that you can pipe a function that returns a tuple, directly into another function that expects a simple value -- but only if it's an ok tuple:
 
     iex> {:ok, [1, 2, 3]}
     iex> |> bind(& Enum.fetch(&1, 0))
@@ -59,9 +58,12 @@ defmodule Popkernel do
     iex> |> bind(&to_string/1)
     {:error, :invalid}
 
-    Note that you can't give it an `:ok` atom as input because there's no clearly defined behaviour for this: it's not an error but also shouldn't be expected to be used as input directly into another function.
+  Note that you can't give it an `:ok` atom as input because there's no clearly defined behaviour for this: it's not an error but also shouldn't be expected to be used as input directly into another function.
+
+  This is still a clunky interface: see the ~> operator
+  for a cleaner approach.
   """
-  def bind(monad, f), do: Monad.bind(monad, f)
+  defdelegate bind(monad, f), to: Monad
 
   @doc """
   Maybe execute a function if the given param is not nil:
