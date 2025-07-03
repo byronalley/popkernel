@@ -250,6 +250,22 @@ defmodule Popkernel do
     do: raise(ArgumentError, "expected :ok tuple but got: #{inspect(other)}")
 
   @doc """
+  Extract a value from an :ok tuple or else raise a custom exception.
+
+  iex> {:ok, "value"}
+  iex> |> or_raise("unused error")
+  "value"
+
+  iex> {:error, :reason}
+  iex> |> or_raise("Error Message")
+  ** (RuntimeError) Error Message
+
+  """
+  @spec or_raise(term, String.t()) :: term | no_return
+  def or_raise({:ok, value}, _message), do: value
+  def or_raise(_, message), do: raise(message)
+
+  @doc """
   The &&& operator adapts the idea of && (with values that might
   be nil) to result tuples.
 
