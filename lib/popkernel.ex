@@ -66,28 +66,6 @@ defmodule Popkernel do
   defdelegate bind(monad, f), to: Monad
 
   @doc """
-  Maybe execute a function if the given param is not nil:
-  - If the param is not `nil`, then run the function on `value`.
-  - If it's an `{:error, msg}` tuple, return that.
-
-  This is mainly an alternative to using `with` blocks, so that
-  you can pipe a function that returns a tuple, directly
-  into another function that expects a simple value -- but only
-  if it's a success tuple:
-
-    iex> 10
-    iex> |> maybe(&to_string/1)
-    "10"
-
-    iex> nil
-    iex> |> maybe(&to_string/1)
-    nil
-  """
-  @spec maybe(maybe_any(), (any -> any)) :: maybe_any()
-  def maybe(nil, _f), do: nil
-  def maybe(value, f), do: f.(value)
-
-  @doc """
   Macro to wrap an expression so that it returns a result tuple instead of raising an exception.
 
     iex> tuple_wrap(5 + 5)
