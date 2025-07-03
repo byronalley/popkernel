@@ -52,11 +52,11 @@ defmodule Popkernel do
   if it's an ok tuple:
 
     iex> {:ok, [1, 2, 3]}
-    iex> |> Popkernel.bind(& Enum.fetch(&1, 0))
+    iex> |> bind(& Enum.fetch(&1, 0))
     {:ok, 1}
 
     iex> {:error, :invalid}
-    iex> |> Popkernel.bind(&to_string/1)
+    iex> |> bind(&to_string/1)
     {:error, :invalid}
 
     Note that you can't give it an `:ok` atom as input because there's no clearly defined behaviour for this: it's not an error but also shouldn't be expected to be used as input directly into another function.
@@ -74,11 +74,11 @@ defmodule Popkernel do
   if it's a success tuple:
 
     iex> 10
-    iex> |> Popkernel.maybe(&to_string/1)
+    iex> |> maybe(&to_string/1)
     "10"
 
     iex> nil
-    iex> |> Popkernel.maybe(&to_string/1)
+    iex> |> maybe(&to_string/1)
     nil
   """
   @spec maybe(maybe_any(), (any -> any)) :: maybe_any()
