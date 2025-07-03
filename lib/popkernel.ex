@@ -212,11 +212,42 @@ defmodule Popkernel do
 
   iex> {:error, :reason}
   iex> |> unwrap()
-  ** (ArgumentError) expected :ok tuple but got {:error, :reason}
+  ** (ArgumentError) expected :ok tuple but got: {:error, :reason}
   """
   @spec unwrap({:ok, term} | {:error, term} | :error) :: term | no_return
   def unwrap({:ok, any}), do: any
-  def unwrap(other), do: raise(ArgumentError, "expected :ok tuple but got #{inspect(other)}")
+  def unwrap(other), do: raise(ArgumentError, "expected :ok tuple but got: #{inspect(other)}")
+
+  @doc """
+  Unwraps an ok tuple and returns the value.
+
+  iex> {:ok, "value"}
+  iex> |> unwrap_or("unused")
+  "value"
+
+  Or if it's not an ok tuple, return an alternate default value.
+
+  iex> {:error, :reason}
+  iex> |> unwrap_or("default")
+  "default"
+
+  iex> :error
+  iex> |> unwrap_or("default")
+  "default"
+
+  Note that only :ok tuples, :error tuples, and :error are supported.
+
+  iex> %{this: "does not work"}
+  iex> |> unwrap_or("default")
+  ** (ArgumentError) expected :ok tuple but got: %{this: "does not work"}
+  """
+  @spec unwrap_or({:ok, term} | {:error, term} | :error, term) :: term
+  def unwrap_or({:ok, value}, _), do: value
+  def unwrap_or({:error, _reason}, default), do: default
+  def unwrap_or(:error, default), do: default
+
+  def unwrap_or(other, _),
+    do: raise(ArgumentError, "expected :ok tuple but got: #{inspect(other)}")
 
   @doc """
   The &&& operator adapts the idea of && (with values that might
